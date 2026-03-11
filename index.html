@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanças Pro - Versão Monetizada</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        :root {
+            --brand: #3867d6; --bg: #f4f6f9; --card: #ffffff;
+            --text-dark: #2d3436; --text-light: #636e72;
+            --red: #eb4d4b; --green: #20bf6b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-dark); margin: 0; padding: 12px; padding-bottom: 70px; /* Espaço para o banner */ }
+        .container { max-width: 480px; margin: 0 auto; }
+
+        /* Estilos Visuais */
+        .header-main { background: linear-gradient(145deg, #1e272e, #2f3542); color: white; padding: 30px; border-radius: 28px; text-align: center; margin-bottom: 15px; }
+        .header-main h1 { margin: 5px 0; font-size: 36px; }
+        .nav-month { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 12px 20px; border-radius: 20px; margin-bottom: 15px; font-weight: 700; }
+        .card-box { background: var(--card); padding: 20px; border-radius: 25px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        
+        /* Inputs */
+        label { display: block; font-size: 11px; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 6px; }
+        select, input { width: 100%; padding: 14px; border-radius: 14px; border: 2px solid #f1f2f6; font-size: 16px; margin-bottom: 15px; }
+        .btn-save { background: var(--brand); color: white; border: none; width: 100%; padding: 16px; border-radius: 16px; font-weight: 700; cursor: pointer; }
+
+        /* Lista */
+        .item-row { background: white; padding: 14px; border-radius: 20px; margin-bottom: 10px; display: flex; align-items: center; }
+        .icon-box { width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px; }
+        .info { flex: 1; } .info b { display: block; font-size: 15px; } .info span { color: var(--text-light); font-size: 11px; }
+        .price { color: var(--red); font-weight: 800; margin-right: 10px; }
+        .btn-del { border: none; background: #fff1f0; color: #ff4d4f; padding: 6px 10px; border-radius: 10px; font-weight: bold; }
+
+        /* AREA DE ANÚNCIO (BANNER) */
+        #ad-banner-container {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            height: 60px; background: #eee; border-top: 1px solid #ddd;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999;
+        }
+
+        .bg-ali { background: #fff1f0; color: #cf1322; }
+        .bg-tra { background: #e6f7ff; color: #096dd9; }
+        .bg-fix { background: #fff7e6; color: #d46b08; }
+        .bg-laz { background: #f6ffed; color: #389e0d; }
+        .bg-sau { background: #f9f0ff; color: #531dab; }
+        .bg-out { background: #f5f5f5; color: #595959; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-main">
+        <small id="label-top">TOTAL DO MÊS</small>
+        <h1 id="total-val">R$ 0,00</h1>
+    </div>
+
+    <div class="nav-month">
+        <button onclick="moveMonth(-1)">❮</button>
+        <span id="date-text">---</span>
+        <button onclick="moveMonth(1)">❯</button>
+    </div>
+
+    <div class="card-box"><canvas id="mainChart" height="180"></canvas></div>
+
+    <div class="card-box">
+        <label>O que comprou?</label>
+        <select id="sel-desc">
+            <option value="Mercado">🛒 Mercado</option>
+            <option value="Restaurante">🍔 Restaurante/Lanche</option>
+            <option value="Padaria">🥐 Padaria</option>
+            <option value="Combustível">⛽ Combustível</option>
+            <option value="Mobilidade">🚗 Uber/99</option>
+            <option value="Manutenção">🔧 Manutenção</option>
+            <option value="Aluguel">🏠 Aluguel</option>
+            <option value="Serviços">💡 Luz/Água/Net</option>
+            <option value="Celular">📱 Plano Celular</option>
+            <option value="Lazer">🍿 Lazer/Cinema</option>
+            <option value="Saúde">💊 Farmácia/Saúde</option>
+            <option value="Outros">📦 Compra Diversa</option>
+        </select>
+        <label>Valor Pago</label>
+        <input type="number" id="inp-val" placeholder="0.00">
+        <button class="btn-save" onclick="handleSave()">Registrar Agora</button>
+        <button onclick="prepararAnuncioIntersticial()" style="background:none; border:none; width:100%; margin-top:12px; color:var(--text-light); font-size:12px; font-weight:700; cursor:pointer">📄 EXPORTAR RELATÓRIO (COM ANÚNCIO)</button>
+    </div>
+
+    <div id="render-list"></div>
+</div>
+
+<div id="ad-banner-container">
+    <div id="ad-placeholder" style="font-size: 10px; color: #999;">
+        [ ANÚNCIO ADMOB CARREGANDO... ]
+        </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'financas_premium_v13';
+    let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let viewDate = new Date();
+    let chart;
+
+    const cfg = {
+        "Mercado": { cat: "Alimentação", icon: "🛒", cls: "bg-ali" },
+        "Restaurante": { cat: "Alimentação", icon: "🍔", cls: "bg-ali" },
+        "Padaria": { cat: "Alimentação", icon: "🥐", cls: "bg-ali" },
+        "Combustível": { cat: "Transporte", icon: "⛽", cls: "bg-tra" },
+        "Mobilidade": { cat: "Transporte", icon: "🚗", cls: "bg-tra" },
+        "Manutenção": { cat: "Transporte", icon: "🔧", cls: "bg-tra" },
+        "Aluguel": { cat: "Fixos", icon: "🏠", cls: "bg-fix" },
+        "Serviços": { cat: "Fixos", icon: "💡", cls: "bg-fix" },
+        "Celular": { cat: "Fixos", icon: "📱", cls: "bg-fix" },
+        "Lazer": { cat: "Lazer", icon: "🍿", cls: "bg-laz" },
+        "Saúde": { cat: "Saúde", icon: "💊", cls: "bg-sau" },
+        "Outros": { cat: "Outros", icon: "📦", cls: "bg-out" }
+    };
+
+    // --- LÓGICA DE MONETIZAÇÃO (SIMULADA) ---
+    function prepararAnuncioIntersticial() {
+        console.log("Chamando ID: ca-app-pub-COLOQUE_SEU_ID_AQUI");
+        alert("Simulando Anúncio de Tela Cheia (Intersticial)... \n\n O PDF será gerado após fechar o anúncio.");
+        // Após o anúncio fechar, chama o PDF
+        exportPDF();
+    }
+
+    function moveMonth(n) { viewDate.setMonth(viewDate.getMonth() + n); sync(); }
+
+    function handleSave() {
+        const desc = document.getElementById('sel-desc').value;
+        const val = parseFloat(document.getElementById('inp-val').value);
+        if(!val) return;
+        const now = new Date();
+        const entryDate = `${now.getDate().toString().padStart(2,'0')}/${(viewDate.getMonth()+1).toString().padStart(2,'0')}/${viewDate.getFullYear()}`;
+        db.push({ id: Date.now(), desc, val, date: entryDate });
+        document.getElementById('inp-val').value = '';
+        save();
+    }
+
+    function remove(id) { if(confirm("Apagar?")) { db = db.filter(i => i.id !== id); save(); } }
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); sync(); }
+
+    function sync() {
+        const m = viewDate.getMonth(); const a = viewDate.getFullYear();
+        const nomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+        document.getElementById('date-text').innerText = `${nomes[m]} ${a}`;
+        const filtered = db.filter(e => {
+            const p = e.date.split('/');
+            return (parseInt(p[1])-1) === m && parseInt(p[2]) === a;
+        });
+        const total = filtered.reduce((s, i) => s + i.val, 0);
+        document.getElementById('total-val').innerText = `R$ ${total.toFixed(2)}`;
+        updateChart(filtered);
+        updateHistory(filtered);
+    }
+
+    function updateChart(data) {
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        const labels = ["Alimentação", "Transporte", "Lazer", "Fixos", "Saúde", "Outros"];
+        const sums = labels.map(l => data.filter(d => (cfg[d.desc]?.cat || "Outros") === l).reduce((s, i) => s + i.val, 0));
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ data: sums, backgroundColor: ['#eb4d4b','#4b7bec','#20bf6b','#fa8231','#8854d0','#a5b1c2'], borderRadius: 10 }] },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display:false } } } }
+        });
+    }
+
+    function updateHistory(data) {
+        const div = document.getElementById('render-list');
+        div.innerHTML = '';
+        data.slice().reverse().forEach(i => {
+            const c = cfg[i.desc] || cfg["Outros"];
+            div.innerHTML += `<div class="item-row"><div class="icon-box ${c.cls}">${c.icon}</div><div class="info"><b>${i.desc}</b><span>${i.date}</span></div><div class="price">R$ ${i.val.toFixed(2)}</div><button class="btn-del" onclick="remove(${i.id})">×</button></div>`;
+        });
+    }
+
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text(`Relatorio - ${document.getElementById('date-text').innerText}`, 14, 20);
+        doc.save(`financas.pdf`);
+    }
+
+    sync();
+</script>
+</body>
+</html>
