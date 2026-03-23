@@ -3,192 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças Pro - Versão Monetizada</title>
+    <title>Vitoria Gonçalves | Studio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
     <style>
         :root {
-            --brand: #3867d6; --bg: #f4f6f9; --card: #ffffff;
-            --text-dark: #2d3436; --text-light: #636e72;
-            --red: #eb4d4b; --green: #20bf6b;
+            --gold: #c5a059;
+            --dark: #121212;
+            --soft-bg: #f4f4f4;
+            --white: #ffffff;
+            --desc: #555; /* Descrição mais escura para melhor leitura */
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-dark); margin: 0; padding: 12px; padding-bottom: 70px; /* Espaço para o banner */ }
-        .container { max-width: 480px; margin: 0 auto; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--soft-bg); color: var(--dark); padding: 10px; padding-bottom: 50px; }
 
-        /* Estilos Visuais */
-        .header-main { background: linear-gradient(145deg, #1e272e, #2f3542); color: white; padding: 30px; border-radius: 28px; text-align: center; margin-bottom: 15px; }
-        .header-main h1 { margin: 5px 0; font-size: 36px; }
-        .nav-month { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 12px 20px; border-radius: 20px; margin-bottom: 15px; font-weight: 700; }
-        .card-box { background: var(--card); padding: 20px; border-radius: 25px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        
-        /* Inputs */
-        label { display: block; font-size: 11px; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 6px; }
-        select, input { width: 100%; padding: 14px; border-radius: 14px; border: 2px solid #f1f2f6; font-size: 16px; margin-bottom: 15px; }
-        .btn-save { background: var(--brand); color: white; border: none; width: 100%; padding: 16px; border-radius: 16px; font-weight: 700; cursor: pointer; }
+        .app-container { max-width: 500px; margin: 0 auto; background: var(--white); border-radius: 40px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.1); }
 
-        /* Lista */
-        .item-row { background: white; padding: 14px; border-radius: 20px; margin-bottom: 10px; display: flex; align-items: center; }
-        .icon-box { width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px; }
-        .info { flex: 1; } .info b { display: block; font-size: 15px; } .info span { color: var(--text-light); font-size: 11px; }
-        .price { color: var(--red); font-weight: 800; margin-right: 10px; }
-        .btn-del { border: none; background: #fff1f0; color: #ff4d4f; padding: 6px 10px; border-radius: 10px; font-weight: bold; }
+        .header { background: var(--dark); color: var(--white); padding: 45px 20px; text-align: center; border-bottom: 5px solid var(--gold); }
+        .header h1 { font-size: 22px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+        .info-atendimento { font-size: 10px; margin-top: 12px; color: var(--white); opacity: 0.9; letter-spacing: 1px; font-weight: 600; background: rgba(197, 160, 89, 0.2); display: inline-block; padding: 5px 15px; border-radius: 20px; }
 
-        /* AREA DE ANÚNCIO (BANNER) */
-        #ad-banner-container {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            height: 60px; background: #eee; border-top: 1px solid #ddd;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 999;
+        .content { padding: 25px; }
+
+        h3 { font-size: 12px; text-transform: uppercase; color: #333; margin: 30px 0 15px; letter-spacing: 2px; font-weight: 700; border-left: 4px solid var(--gold); padding-left: 10px; }
+
+        /* GRID MULTI-SELEÇÃO */
+        .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-card { grid-column: span 2; }
+
+        .service-card {
+            border: 2px solid #eee; border-radius: 25px; padding: 20px; text-align: center;
+            cursor: pointer; transition: 0.3s; background: #fff; position: relative;
         }
 
-        .bg-ali { background: #fff1f0; color: #cf1322; }
-        .bg-tra { background: #e6f7ff; color: #096dd9; }
-        .bg-fix { background: #fff7e6; color: #d46b08; }
-        .bg-laz { background: #f6ffed; color: #389e0d; }
-        .bg-sau { background: #f9f0ff; color: #531dab; }
-        .bg-out { background: #f5f5f5; color: #595959; }
+        .service-card i { font-size: 24px; color: var(--gold); margin-bottom: 12px; }
+        .service-card span { font-size: 12px; font-weight: 700; display: block; text-transform: uppercase; margin-bottom: 6px; }
+        .service-card p { font-size: 11px; color: var(--desc); line-height: 1.4; font-weight: 500; margin-bottom: 10px; }
+        .service-card .price { font-size: 15px; font-weight: 700; color: var(--dark); }
+
+        /* Selecionado */
+        .service-card.active { border-color: var(--gold); background: #fffdf7; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(197, 160, 89, 0.1); }
+        .service-card.active::after { content: "\f058"; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; top: 12px; right: 12px; color: var(--gold); font-size: 18px; }
+
+        /* SELEÇÃO DE CLIENTE */
+        .client-type { display: flex; gap: 10px; margin-bottom: 20px; }
+        .type-btn { flex: 1; padding: 15px; border: 1px solid #ddd; border-radius: 15px; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center; background: #fafafa; transition: 0.3s; }
+        .type-btn.selected { background: var(--dark); color: var(--gold); border-color: var(--dark); }
+
+        /* FORMULÁRIO */
+        .label-form { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; margin-left: 5px; }
+        .input-field { width: 100%; padding: 18px; border: 1px solid #eee; border-radius: 18px; margin-bottom: 15px; font-size: 15px; background: #fdfdfd; outline: none; }
+        .input-field:focus { border-color: var(--gold); }
+
+        /* RESUMO FIXO */
+        .footer-summary { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--dark); padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; color: #fff; }
+        .total-box h4 { font-size: 10px; color: var(--gold); text-transform: uppercase; }
+        .total-box h2 { font-size: 24px; }
+        .btn-confirm { background: var(--gold); color: var(--dark); border: none; padding: 15px 25px; border-radius: 12px; font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-main">
-        <small id="label-top">TOTAL DO MÊS</small>
-        <h1 id="total-val">R$ 0,00</h1>
+<div class="app-container">
+    <div class="header">
+        <h1>Vitoria Gonçalves</h1>
+        <p class="info-atendimento"><i class="far fa-clock"></i> SEG À SÁB: 08:30 ÀS 18:00</p>
     </div>
 
-    <div class="nav-month">
-        <button onclick="moveMonth(-1)">❮</button>
-        <span id="date-text">---</span>
-        <button onclick="moveMonth(1)">❯</button>
+    <div class="content">
+        <h3>1. Escolha seus Serviços</h3>
+        <div class="services-grid">
+            <div class="service-card full-card" onclick="toggleServico(this, 'Combo Essencial', 175)">
+                <i class="fa-solid fa-wand-sparkles"></i>
+                <span>Combo Essencial</span>
+                <p>O queridinho: Alongamento de Unhas Tips completo + Esmaltação em Gel nos Pés.</p>
+                <div class="price">R$ 175</div>
+            </div>
+
+            <div class="service-card full-card" onclick="toggleServico(this, 'Combo Harmony', 195)">
+                <i class="fa-solid fa-heart"></i>
+                <span>Combo Harmony</span>
+                <p>Esmaltação em Gel nas Mãos e Pés + Volume Brasileiro nos Cílios.</p>
+                <div class="price">R$ 195</div>
+            </div>
+
+            <div class="service-card full-card" onclick="toggleServico(this, 'Combo Master', 270)">
+                <i class="fa-solid fa-crown"></i>
+                <span>Combo Master</span>
+                <p>Experiência Completa: Alongamento Tips, Gel no Pé e Volume Brasileiro.</p>
+                <div class="price">R$ 270</div>
+            </div>
+
+            <div class="service-card" onclick="toggleServico(this, 'Vol. Brasileiro', 120)">
+                <i class="fa-solid fa-eye"></i>
+                <span>Brasileiro</span>
+                <p>Cílios com efeito natural e clássico.</p>
+                <div class="price">R$ 120</div>
+            </div>
+
+            <div class="service-card" onclick="toggleServico(this, 'Vol. Egípcio', 155)">
+                <i class="fa-solid fa-gem"></i>
+                <span>Egípcio</span>
+                <p>Volume marcante com fios tecnológicos.</p>
+                <div class="price">R$ 155</div>
+            </div>
+
+            <div class="service-card" onclick="toggleServico(this, 'Along. Tips', 135)">
+                <i class="fa-solid fa-hand-sparkles"></i>
+                <span>Tips</span>
+                <p>Unhas longas e resistentes.</p>
+                <div class="price">R$ 135</div>
+            </div>
+
+            <div class="service-card" onclick="toggleServico(this, 'Esmalte Gel', 55)">
+                <i class="fa-solid fa-paint-roller"></i>
+                <span>Gel Mão</span>
+                <p>Brilho duradouro por 20 dias.</p>
+                <div class="price">R$ 55</div>
+            </div>
+        </div>
+
+        <h3>2. Sobre Você</h3>
+        <label class="label-form">Você já é nossa cliente?</label>
+        <div class="client-type">
+            <div class="type-btn" id="btnNovo" onclick="setCliente('Nova Cliente')">Sou Nova</div>
+            <div class="type-btn" id="btnAntigo" onclick="setCliente('Já sou Cliente')">Já sou Cliente</div>
+        </div>
+
+        <label class="label-form">Nome Completo</label>
+        <input type="text" id="nome" class="input-field" placeholder="Como deseja ser chamada?">
+        
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1"><label class="label-form">Data</label><input type="date" id="data" class="input-field"></div>
+            <div style="flex:1"><label class="label-form">Hora</label><input type="time" id="hora" class="input-field"></div>
+        </div>
     </div>
-
-    <div class="card-box"><canvas id="mainChart" height="180"></canvas></div>
-
-    <div class="card-box">
-        <label>O que comprou?</label>
-        <select id="sel-desc">
-            <option value="Mercado">🛒 Mercado</option>
-            <option value="Restaurante">🍔 Restaurante/Lanche</option>
-            <option value="Padaria">🥐 Padaria</option>
-            <option value="Combustível">⛽ Combustível</option>
-            <option value="Mobilidade">🚗 Uber/99</option>
-            <option value="Manutenção">🔧 Manutenção</option>
-            <option value="Aluguel">🏠 Aluguel</option>
-            <option value="Serviços">💡 Luz/Água/Net</option>
-            <option value="Celular">📱 Plano Celular</option>
-            <option value="Lazer">🍿 Lazer/Cinema</option>
-            <option value="Saúde">💊 Farmácia/Saúde</option>
-            <option value="Outros">📦 Compra Diversa</option>
-        </select>
-        <label>Valor Pago</label>
-        <input type="number" id="inp-val" placeholder="0.00">
-        <button class="btn-save" onclick="handleSave()">Registrar Agora</button>
-        <button onclick="prepararAnuncioIntersticial()" style="background:none; border:none; width:100%; margin-top:12px; color:var(--text-light); font-size:12px; font-weight:700; cursor:pointer">📄 EXPORTAR RELATÓRIO (COM ANÚNCIO)</button>
-    </div>
-
-    <div id="render-list"></div>
 </div>
 
-<div id="ad-banner-container">
-    <div id="ad-placeholder" style="font-size: 10px; color: #999;">
-        [ ANÚNCIO ADMOB CARREGANDO... ]
-        </div>
+<div class="footer-summary">
+    <div class="total-box">
+        <h4>Valor Estimado</h4>
+        <h2 id="totalTxt">R$ 0,00</h2>
+    </div>
+    <button class="btn-confirm" onclick="enviarWhatsApp()">AGENDAR <i class="fab fa-whatsapp"></i></button>
 </div>
 
 <script>
-    const STORAGE_KEY = 'financas_premium_v13';
-    let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    let viewDate = new Date();
-    let chart;
+    let selecionados = [];
+    let tipoCliente = "";
+    let valorTotal = 0;
 
-    const cfg = {
-        "Mercado": { cat: "Alimentação", icon: "🛒", cls: "bg-ali" },
-        "Restaurante": { cat: "Alimentação", icon: "🍔", cls: "bg-ali" },
-        "Padaria": { cat: "Alimentação", icon: "🥐", cls: "bg-ali" },
-        "Combustível": { cat: "Transporte", icon: "⛽", cls: "bg-tra" },
-        "Mobilidade": { cat: "Transporte", icon: "🚗", cls: "bg-tra" },
-        "Manutenção": { cat: "Transporte", icon: "🔧", cls: "bg-tra" },
-        "Aluguel": { cat: "Fixos", icon: "🏠", cls: "bg-fix" },
-        "Serviços": { cat: "Fixos", icon: "💡", cls: "bg-fix" },
-        "Celular": { cat: "Fixos", icon: "📱", cls: "bg-fix" },
-        "Lazer": { cat: "Lazer", icon: "🍿", cls: "bg-laz" },
-        "Saúde": { cat: "Saúde", icon: "💊", cls: "bg-sau" },
-        "Outros": { cat: "Outros", icon: "📦", cls: "bg-out" }
-    };
-
-    // --- LÓGICA DE MONETIZAÇÃO (SIMULADA) ---
-    function prepararAnuncioIntersticial() {
-        console.log("Chamando ID: ca-app-pub-COLOQUE_SEU_ID_AQUI");
-        alert("Simulando Anúncio de Tela Cheia (Intersticial)... \n\n O PDF será gerado após fechar o anúncio.");
-        // Após o anúncio fechar, chama o PDF
-        exportPDF();
+    function toggleServico(el, nome, preco) {
+        const index = selecionados.findIndex(s => s.nome === nome);
+        if(index > -1) {
+            selecionados.splice(index, 1);
+            el.classList.remove('active');
+            valorTotal -= preco;
+        } else {
+            selecionados.push({nome, preco});
+            el.classList.add('active');
+            valorTotal += preco;
+        }
+        document.getElementById('totalTxt').innerText = "R$ " + valorTotal.toFixed(2).replace('.', ',');
     }
 
-    function moveMonth(n) { viewDate.setMonth(viewDate.getMonth() + n); sync(); }
-
-    function handleSave() {
-        const desc = document.getElementById('sel-desc').value;
-        const val = parseFloat(document.getElementById('inp-val').value);
-        if(!val) return;
-        const now = new Date();
-        const entryDate = `${now.getDate().toString().padStart(2,'0')}/${(viewDate.getMonth()+1).toString().padStart(2,'0')}/${viewDate.getFullYear()}`;
-        db.push({ id: Date.now(), desc, val, date: entryDate });
-        document.getElementById('inp-val').value = '';
-        save();
+    function setCliente(tipo) {
+        tipoCliente = tipo;
+        document.getElementById('btnNovo').classList.toggle('selected', tipo === 'Nova Cliente');
+        document.getElementById('btnAntigo').classList.toggle('selected', tipo === 'Já sou Cliente');
     }
 
-    function remove(id) { if(confirm("Apagar?")) { db = db.filter(i => i.id !== id); save(); } }
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); sync(); }
+    function enviarWhatsApp() {
+        const nome = document.getElementById('nome').value;
+        const data = document.getElementById('data').value;
+        const hora = document.getElementById('hora').value;
+        
+        if(selecionados.length === 0 || !nome || !data || !hora || !tipoCliente) {
+            alert("Por favor, preencha todos os campos e selecione os serviços.");
+            return;
+        }
 
-    function sync() {
-        const m = viewDate.getMonth(); const a = viewDate.getFullYear();
-        const nomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-        document.getElementById('date-text').innerText = `${nomes[m]} ${a}`;
-        const filtered = db.filter(e => {
-            const p = e.date.split('/');
-            return (parseInt(p[1])-1) === m && parseInt(p[2]) === a;
-        });
-        const total = filtered.reduce((s, i) => s + i.val, 0);
-        document.getElementById('total-val').innerText = `R$ ${total.toFixed(2)}`;
-        updateChart(filtered);
-        updateHistory(filtered);
+        const dataObj = new Date(data + 'T00:00:00');
+        if (dataObj.getDay() === 0) { alert("Estamos fechados aos domingos!"); return; }
+
+        const [h, m] = hora.split(':').map(Number);
+        if ((h*60+m) < (8*60+30) || (h*60+m) > (18*60)) {
+            alert("Horário de atendimento: 08:30 às 18:00.");
+            return;
+        }
+
+        const listaServicos = selecionados.map(s => `• ${s.nome}`).join('%0A');
+        const dataBr = data.split('-').reverse().join('/');
+        
+        const texto = `👑 *CONCEPT STUDIO | AGENDAMENTO* 👑%0A%0A` +
+                      `👤 *Status:* ${tipoCliente}%0A` +
+                      `👤 *Nome:* ${nome}%0A%0A` +
+                      `📋 *Serviços Selecionados:*%0A${listaServicos}%0A%0A` +
+                      `💰 *Valor Total:* R$ ${valorTotal.toFixed(2)}%0A` +
+                      `📅 *Data:* ${dataBr}%0A` +
+                      `⏰ *Hora:* ${hora}%0A%0A` +
+                      `_Aguardo retorno para confirmar!_`;
+
+        window.open(`https://wa.me/5513996046886?text=${texto}`, '_blank');
     }
-
-    function updateChart(data) {
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        const labels = ["Alimentação", "Transporte", "Lazer", "Fixos", "Saúde", "Outros"];
-        const sums = labels.map(l => data.filter(d => (cfg[d.desc]?.cat || "Outros") === l).reduce((s, i) => s + i.val, 0));
-        if(chart) chart.destroy();
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels, datasets: [{ data: sums, backgroundColor: ['#eb4d4b','#4b7bec','#20bf6b','#fa8231','#8854d0','#a5b1c2'], borderRadius: 10 }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display:false } } } }
-        });
-    }
-
-    function updateHistory(data) {
-        const div = document.getElementById('render-list');
-        div.innerHTML = '';
-        data.slice().reverse().forEach(i => {
-            const c = cfg[i.desc] || cfg["Outros"];
-            div.innerHTML += `<div class="item-row"><div class="icon-box ${c.cls}">${c.icon}</div><div class="info"><b>${i.desc}</b><span>${i.date}</span></div><div class="price">R$ ${i.val.toFixed(2)}</div><button class="btn-del" onclick="remove(${i.id})">×</button></div>`;
-        });
-    }
-
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text(`Relatorio - ${document.getElementById('date-text').innerText}`, 14, 20);
-        doc.save(`financas.pdf`);
-    }
-
-    sync();
 </script>
+
 </body>
 </html>
